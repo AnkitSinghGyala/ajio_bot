@@ -5,7 +5,10 @@ import telebot
 import os
 
 # === CONFIG ===
-PRODUCT_URL = 'https://www.ajio.com/nike-initiator-lace-up-running-shoes/p/469647549_blackgrey'
+PRODUCT_1_URL = 'https://www.ajio.com/nike-initiator-lace-up-running-shoes/p/469647549_blackgrey'
+PRODUCT_1_NAME = 'Initiator 1'
+PRODUCT_2_URL = 'https://www.ajio.com/nike-men-initiator-running-shoes/p/469691390_white?'
+PRODUCT_2_NAME = 'Initiator 2'
 TARGET_SIZE = 'UK 9'
 CHECK_INTERVAL = 60 * 30  # every 30 minutes
 
@@ -15,9 +18,9 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-def check_stock():
+def check_stock(product_url, product_name):
     headers = {'User-Agent': 'Mozilla/5.0'}
-    response = requests.get(PRODUCT_URL, headers=headers)
+    response = requests.get(product_url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     buttons = soup.find_all('button')
@@ -35,12 +38,19 @@ if __name__ == '__main__':
     while True:
         print('🔍 Checking stock...')
         try:
-            if check_stock():
-                print('🎯 In stock! Sending Telegram alert...')
-                send_telegram_alert(f'🎉 Your size ({TARGET_SIZE}) is in stock!\n{PRODUCT_URL}')
-            else:
-                print(f'❌ Not available: {TARGET_SIZE}')
-                send_telegram_alert(f'❌ Still out of stock for size {TARGET_SIZE}. Bot is running fine.')
+            status_messages = []
+
+            for url, name in [(PRODUCT_1_URL, PRODUCT_1_NAME), (PRODUCT_2_URL, PRODUCT_2_NAME)]:
+                if check_stock(url, name):
+                    print(f'🎯 In stock: {name}')
+                    status_messages.append(f'✅ {name} ({TARGET_SIZE}) is in stock!\n{url}')
+                else:
+                    print(f'❌ Not available: {name}')
+                    status_messages.append(f'❌ {name} ({TARGET_SIZE}) is still out of stock.')
+
+            # Send full status update
+            status_messages.append('🤖 Stock check complete. Bot is running.')
+            send_telegram_alert('\n'.join(status_messages))
         except Exception as e:
             print(f'⚠️ Error: {e}')
             send_telegram_alert(f'⚠️ Bot encountered an error: {e}')
