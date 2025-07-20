@@ -35,11 +35,11 @@ import os
 import requests
 import json
 import re
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 
 # --- Load Environment Variables ---
-load_dotenv()
+# load_dotenv()
 
 # === CONFIG ===
 PRODUCTS = [
