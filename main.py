@@ -53,7 +53,7 @@ PRODUCTS = [
     }
 ]
 TARGET_SIZE = '9'
-CHECK_INTERVAL = 60 * 30  # 30 minutes
+CHECK_INTERVAL = 60 * 60  # 30 minutes
 
 # --- Load Credentials ---
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
